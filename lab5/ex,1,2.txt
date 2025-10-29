@@ -65,7 +65,7 @@ void inordine(NodeT *p)
         inordine(p->right);
     }
 }
-NodeT * search(NodeT *root,int key)
+NodeT * search(NodeT *root,int key) ///Am rezolvat problema
 {
     if(root==NULL) return NULL;
     if(root->key==key)
@@ -73,8 +73,8 @@ NodeT * search(NodeT *root,int key)
         printf("DA");
         return root;
     }
-    if(root->key>key) search(root->left,key);
-    search(root->right,key);
+    if(root->key>key) return(search(root->left,key)); ///Aici nu dadeam return 
+    return(search(root->right,key));
 }
 int main()
 {
