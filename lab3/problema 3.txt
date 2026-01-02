@@ -1,0 +1,139 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define CAPACITY 10
+typedef struct _queue
+{
+    int vec[CAPACITY];
+    int size;
+    int head,tail;
+} Queue;
+void insert_head(Queue *my_queue,int key)
+{
+    if(my_queue->size!=CAPACITY)
+    {
+        if(my_queue->head!=0)
+        {
+            my_queue->head--;
+        }
+        else
+        {
+            my_queue->head=CAPACITY-1;
+        }
+        my_queue->size++;
+        my_queue->vec[my_queue->head]=key;
+    }
+}
+void insert_tail(Queue *my_queue,int key)
+{
+    if(my_queue->size!=CAPACITY)
+    {
+        my_queue->size++;
+        my_queue->vec[my_queue->tail]=key;
+        if(my_queue->tail!=CAPACITY-1)
+        {
+            my_queue->tail++;
+        }
+        else
+        {
+            my_queue->tail=0;
+        }
+
+    }
+}
+void afisare_coada(Queue my_queue)
+{
+    int head=my_queue.head,tail=my_queue.tail;
+    int i;
+    if(my_queue.size==0)
+    {
+        printf("Coada este goala\n");
+        return ;
+    }
+    if(tail>head)
+    {
+        for(i=head; i<tail; i++)
+            printf("%d ",my_queue.vec[i]);
+    }
+    else if(tail==head)
+    {
+        for(i=head; i<CAPACITY; i++)
+            printf("%d ",my_queue.vec[i]);
+        for(i=0; i<head; i++)
+            printf("%d ",my_queue.vec[i]);
+    }
+    else
+    {
+        for(i=head; i<CAPACITY; i++)
+            printf("%d ",my_queue.vec[i]);
+        for(i=0; i<tail; i++)
+            printf("%d ",my_queue.vec[i]);
+    }
+    printf("\n");
+}
+int delete_head(Queue *q)
+{
+
+    if(q->size!=0)
+    {
+        int valoare=q->vec[q->head];
+        if(q->head==CAPACITY-1) q->head=0;
+        else q->head++;
+        q->size--;
+        return valoare;
+    }
+    else printf("Coada este goala\n");
+    return -1;
+}
+int delete_tail(Queue *q)
+{
+    if(q->size!=0)
+    {
+        if(q->tail!=0)
+            q->tail--;
+        else q->tail=CAPACITY-1;
+        q->size--;
+        int valoare=q->vec[q->tail];
+        return valoare;
+    }
+    else printf("Coada este goala\n");
+    return -1;
+}
+void initializare_coada(Queue *q)
+{
+    q->tail=0;
+    q->head=0;
+    q->size=0;
+    int i=0;
+    for(i=0; i<10; i++)
+        q->vec[i]=0;
+}
+int main()
+{
+    Queue q;
+    initializare_coada(&q);
+    insert_head(&q,1);
+    insert_head(&q,2);
+    int i;
+    for(i=0; i<CAPACITY; i++)
+        printf("%d ",q.vec[i]);
+    printf("\n");
+    insert_tail(&q,3);
+    for(i=0; i<CAPACITY; i++)
+        printf("%d ",q.vec[i]);
+    printf("\n");
+    int val;
+    afisare_coada(q);
+    val=delete_head(&q);
+    afisare_coada(q);
+    insert_tail(&q,6);
+    insert_head(&q,12);
+    afisare_coada(q);
+    val=delete_tail(&q);
+    printf("Valoare scoasa din tail este:%d\n",val);
+    afisare_coada(q);
+    val=delete_tail(&q);
+    val=delete_tail(&q);
+    val=delete_tail(&q);
+    afisare_coada(q);
+    return 0;
+}

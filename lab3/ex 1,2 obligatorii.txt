@@ -1,0 +1,161 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define CAPACITY 10
+typedef struct _queue
+{
+    int vec[CAPACITY];
+    int size;
+    int head,tail;
+} Queue;
+typedef struct node
+{
+    int key;
+    struct node *next;
+} NodeT;
+void push(NodeT **stack,int key)
+{
+    NodeT *p=(NodeT *)calloc(1,sizeof(NodeT));
+    p->next=*stack;
+    p->key=key;
+    *stack=p;
+}
+NodeT* pop(NodeT **stack)
+{
+    NodeT *p=(*stack);
+    if(*stack!=NULL)
+    {
+
+        *stack=(*stack)->next;
+    }
+
+    return p;
+}
+void afisare_stiva(NodeT *stack)
+{
+    if(stack!=NULL)
+    {
+        while(stack!=NULL)
+        {
+            printf("%d ",stack->key);
+            stack=stack->next;
+        }
+    }
+
+    else printf("Stiva este goala\n");
+    printf("\n");
+}
+void initializare_coada(Queue *q)
+{
+    q->tail=0;
+    q->head=0;
+    q->size=0;
+    int i=0;
+    for(i=0; i<10; i++)
+        q->vec[i]=0;
+}
+void enqueue(Queue *my_queue,int key)
+{
+    if(my_queue->size!=CAPACITY)
+    {
+        my_queue->vec[my_queue->tail]=key;
+        if(my_queue->tail !=CAPACITY-1) my_queue->tail++;
+        else my_queue->tail=0;
+        my_queue->size++;
+    }
+    else printf("Coada este plina\n");
+}
+int dequeue(Queue *my_queue)
+{
+    if(my_queue->size==0)
+    {
+        printf("Lista este goala");
+        return -1;
+    }
+    my_queue->size--;
+    if(my_queue->head !=CAPACITY-1)
+    {
+        my_queue->head++;
+        return my_queue->vec[my_queue->head-1];
+    }
+    else
+    {
+        my_queue->head=0;
+        return my_queue->vec[CAPACITY-1];
+    }
+
+
+}
+void afisare_coada(Queue my_queue)
+{
+    int head=my_queue.head,tail=my_queue.tail;
+    int i;
+    if(my_queue.size==0)
+    {
+        printf("Coada este goala\n");
+        return ;
+    }
+    if(tail>head)
+    {
+        for(i=head; i<tail; i++)
+            printf("%d ",my_queue.vec[i]);
+    }
+    else if(tail==head)
+    {
+        for(i=head; i<CAPACITY; i++)
+            printf("%d ",my_queue.vec[i]);
+        for(i=0; i<head; i++)
+            printf("%d ",my_queue.vec[i]);
+    }
+    else
+    {
+        for(i=head; i<CAPACITY; i++)
+            printf("%d ",my_queue.vec[i]);
+        for(i=0; i<tail; i++)
+            printf("%d ",my_queue.vec[i]);
+    }
+    printf("\n");
+}
+int main()
+{
+    /*
+    NodeT *stack=NULL;
+    push(&stack,15);
+    push(&stack,12);
+    push(&stack,14);
+    afisare_stiva(stack);
+    NodeT *p=pop(&stack);
+    afisare_stiva(stack);
+    printf("%d",p->key);
+    free(p);
+    p=pop(&stack);
+    free(p);
+    p=pop(&stack);
+    free(p);
+    afisare_stiva(stack);
+    */
+    Queue q;
+    initializare_coada(&q);
+    enqueue(&q,1);
+    enqueue(&q,2);
+    enqueue(&q,3);
+    enqueue(&q,4);
+    enqueue(&q,5);
+    enqueue(&q,6);
+    enqueue(&q,7);
+    enqueue(&q,8);
+    enqueue(&q,9);
+    enqueue(&q,10);
+    afisare_coada(q);
+    dequeue(&q);
+    afisare_coada(q);
+    enqueue(&q,11);
+    afisare_coada(q);
+    dequeue(&q);
+    dequeue(&q);
+    dequeue(&q);
+    dequeue(&q);
+    dequeue(&q);
+    afisare_coada(q);
+    enqueue(&q,12);
+    return 0;
+}

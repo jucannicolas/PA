@@ -1,0 +1,228 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct node
+{
+    int key;
+    struct node *next;
+    struct node *prev;
+} NodeDL;
+typedef struct list_header
+{
+    NodeDL *first,*last;
+} ListaDL;
+
+void insert_first(ListaDL *L,int givenKey)
+{
+    NodeDL *p=(NodeDL *)calloc(1,sizeof(NodeDL));
+    p->key=givenKey;
+    p->next=NULL;
+    p->prev=NULL;
+    if(L->first==NULL)
+    {
+        L->first=L->last=p;
+    }
+    else
+    {
+        L->first->prev=p;
+        p->next=L->first;
+        L->first=p;
+    }
+}
+void insert_last(ListaDL *L,int givenKey)
+{
+    NodeDL *p=(NodeDL *)calloc(1,sizeof(NodeDL));
+    p->key=givenKey;
+    p->next=p->prev=NULL;
+    if(L->first==NULL)
+    {
+        L->first=L->last=p;
+    }
+    else
+    {
+        L->last->next=p;
+        p->prev=L->last;
+        L->last=p;
+    }
+}
+void insert_after_key(ListaDL *L,int afterKey,int givenKey)
+{
+
+    NodeDL *q=L->first;
+    while(q!=NULL)
+    {
+        if(q->key==afterKey)
+        {
+            NodeDL *p=(NodeDL *)calloc(1,sizeof(NodeDL));
+            p->next=p->prev=NULL;
+            p->key=givenKey;
+            if(q==L->last) L->last=p;
+            else q->next->prev=p;
+            p->prev=q;
+            p->next=q->next;
+            q->next=p;
+            break;
+        }
+        q=q->next;
+    }
+    if(q==NULL)
+    {
+        printf("Nu exista nodul respectiv");
+    }
+}
+void insert_before_key(ListaDL *L,int beforeKey,int givenKey)
+{
+
+    NodeDL *q=L->first;
+    while(q!=NULL)
+    {
+        if(q->key==beforeKey)
+        {
+            NodeDL *p=(NodeDL *)calloc(1,sizeof(NodeDL));
+            p->prev=p->next=NULL;
+            p->key=givenKey;
+            if(q==L->first) L->first=p;
+            else q->prev->next=p;
+            p->prev=q->prev;
+            q->prev=p;
+            p->next=q;
+            break;
+        }
+        q=q->next;
+    }
+    if(q==NULL)
+    {
+        printf("Nu exista nodul respectiv");
+    }
+}
+NodeDL *search(ListaDL *L,int key)
+{
+    NodeDL *p=L->first;
+    while(p!=NULL)
+    {
+        if(key==p->key) return p;
+        p=p->next;
+    }
+    return p;
+}
+void print_forward(struct list_header L)
+{
+    NodeDL *p=L.first;
+    if(p!=NULL)
+    {
+        while(p!=NULL)
+        {
+            printf("%d ",p->key);
+            p=p->next;
+        }
+    }
+    else printf("Lista dublu inlantuita e goala");
+    printf("\n");
+}
+void print_backward(ListaDL *L)
+{
+    NodeDL *p=L->last;
+    if(p!=NULL)
+    {
+        while(p!=NULL)
+        {
+            printf("%d ",p->key);
+            p=p->prev;
+        }
+    }
+    else printf("Lista dublu inlantuita e goala");
+    printf("\n");
+
+}
+void delete_first(ListaDL *L)
+{
+    if(L->first==NULL) return;
+    NodeDL *p=L->first;
+    if(L->first==L->last)
+    {
+        L->first=L->last=NULL;
+        if(p!=NULL)free(p);
+        return ;
+    }
+    p->next->prev=NULL;
+    L->first=p->next;
+    free(p);
+}
+void delete_last(ListaDL *L)
+{
+    if(L->first==NULL) return;
+    NodeDL *p=L->last;
+    if(p==L->first)
+    {
+        L->first=L->last=NULL;
+        if(p!=NULL) free(p);
+        return;
+    }
+    p->prev->next=NULL;
+    L->last=p->prev;
+    free(p);
+}
+void delete_key(ListaDL *L,int key)
+{
+    NodeDL *p=search(L,key);
+    if(p!=NULL)
+    {
+        if(p==L->first)
+        {
+            delete_first(L);
+            return ;
+        }
+        if(p==L->last)
+        {
+            delete_last(L);
+            return;
+        }
+        p->next->prev=p->prev;
+        p->prev->next=p->next;
+        free(p);
+    }
+}
+int main()
+{
+    ListaDL L= {NULL,NULL};
+    insert_first(&L,1);
+    insert_first(&L,3);
+    print_forward(L);
+    insert_last(&L,8);
+    print_forward(L);
+    insert_after_key(&L,1,10);
+    print_forward(L);
+    insert_after_key(&L,8,15);
+    print_forward(L);
+    insert_before_key(&L,10,20);
+    print_forward(L);
+    insert_before_key(&L,3,25);
+    print_forward(L);
+    NodeDL *p=search(&L,102);
+    if(p) printf("%d\n",p->key);
+    else printf("Nu exista nodul\n");
+    delete_first(&L);
+    print_forward(L);
+    delete_first(&L);
+    delete_first(&L);
+    delete_first(&L);
+    print_forward(L);
+    insert_first(&L,4);
+    print_forward(L);
+    delete_last(&L);
+    print_forward(L);
+    insert_after_key(&L,8,20);
+    print_forward(L);
+    delete_key(&L,4);
+    print_forward(L);
+    insert_first(&L,17);
+    print_forward(L);
+    delete_key(&L,20);
+    print_forward(L);
+    delete_key(&L,10);
+    print_forward(L);
+    delete_key(&L,17);
+    delete_key(&L,8);
+    delete_key(&L,99);
+    print_forward(L);
+    return 0;
+}

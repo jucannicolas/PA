@@ -1,0 +1,119 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+typedef struct node
+{
+    char cuvant[100];
+    int frec;
+    struct node *next;
+    struct node *prev;
+} NodeT;
+typedef struct
+{
+    NodeT *first,*last;
+} ListaCuvinte;
+void insereaza_cuvinte_noi(ListaCuvinte *L,char cuvant[])
+{
+    NodeT *q=L->first;
+    while(q!=NULL)
+    {
+        if(strcmp(q->cuvant,cuvant)==0)
+        {
+            q->frec++;
+            return;
+        }
+        q=q->next;
+    }
+    NodeT *p=(NodeT *)calloc(1,sizeof(NodeT));
+    strcpy(p->cuvant,cuvant);
+    p->next=p->prev=NULL;
+    p->frec=1;
+    q=L->first;
+    if(q==NULL)
+    {
+        L->first=L->last=p;
+        return;
+    }
+    if(strcmp(L->first->cuvant,cuvant)>0)
+    {
+        p->next=L->first;
+        L->first->prev=p;
+        L->first=p;
+        return;
+    }
+    if(strcmp(cuvant,L->last->cuvant)>0)
+    {
+        L->last->next=p;
+        p->prev=L->last;
+        L->last=p;
+        return;
+    }
+    while(q!=NULL)
+    {
+        int comp=strcmp(q->cuvant,cuvant);
+        if(comp>0)
+        {
+
+            q->prev->next=p;
+            p->prev=q->prev;
+            q->prev=p;
+            p->next=q;
+            return ;
+        }
+        q=q->next;
+    }
+
+}
+void afisare_lista_cresc(ListaCuvinte *L)
+{
+    NodeT *p=L->first;
+    if(p==NULL)
+    {
+        printf("Lista este goala\n");
+        return ;
+    }
+    while(p!=NULL)
+    {
+        printf("Cuvantul:%s apare de %d ori\n",p->cuvant,p->frec);
+        p=p->next;
+    }
+    printf("\n");
+}
+void afisare_lista_descresc(ListaCuvinte *L)
+{
+    NodeT *p=L->last;
+    if(p==NULL)
+    {
+        printf("Lista este goala\n");
+        return ;
+    }
+    while(p!=NULL)
+    {
+        printf("Cuvantul:%s apare de %d ori\n",p->cuvant,p->frec);
+        p=p->prev;
+    }
+    printf("\n");
+}
+int main()
+{
+    ListaCuvinte L= {NULL,NULL};
+    int n,i;
+    FILE *pf=fopen("fisier.bat","r");
+    if(pf==NULL)
+    {
+        printf("Eroare la deschidere fisier");
+        return -1;
+    }
+    fscanf(pf,"%d",&n);
+
+    for(i=0;i<n;i++)
+    {
+        char s[100];
+        fscanf(pf,"%s",s);
+        insereaza_cuvinte_noi(&L,s);
+    }
+    afisare_lista_cresc(&L);
+    afisare_lista_descresc(&L);
+
+    return 0;
+}
