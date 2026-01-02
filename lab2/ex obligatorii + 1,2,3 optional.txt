@@ -1,0 +1,306 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct node
+{
+    int key;
+    struct node *next;
+} NodeT;
+NodeT *search(NodeT *first,int givenKey) ///ex1 lab2
+{
+    while(first!=NULL && first->key!=givenKey)
+    {
+        first=first->next;
+    }
+    /*
+    if(first==NULL)
+    {
+        printf("Nu s-a gasit nodul cu cheia %d\n",givenKey);
+    }*/
+    return first;
+}
+void insert_first(NodeT **first,NodeT **last,int givenKey) ///ex2 lab2
+{
+    NodeT *p=(NodeT *)calloc(1,sizeof(NodeT));
+    p->next=NULL;
+    p->key=givenKey;
+    if(*first==NULL)
+    {
+        *first=p;
+        *last=p;
+    }
+    else
+    {
+        p->next=*first;
+        *first=p;
+    }
+}
+
+
+void insert_last(NodeT **first,NodeT **last,int givenKey)
+{
+    NodeT *p=(NodeT *)calloc(1,sizeof(NodeT));
+    p->next=NULL;
+    p->key=givenKey;
+    if(*first==NULL)
+    {
+        *first=*last=p;
+    }
+    else
+    {
+        (*last)->next=p;
+        *last=p;
+    }
+}
+void insert_beforeKey(NodeT **first,NodeT **last,int givenKey,int beforeKey)
+{
+    NodeT *p,*p_ant;
+    p=*first;
+    p_ant=NULL;
+    while(p!=NULL && p->key!=beforeKey)
+    {
+        p_ant=p;
+        p=p->next;
+    }
+    if(p==NULL)
+    {
+        printf("Nu exista nodul cu cheia %d\n",beforeKey);
+        return ;
+    }
+    else
+    {
+        NodeT *q=(NodeT *)calloc(1,sizeof(NodeT));
+        q->key=givenKey;
+        q->next=p;
+        if(*first!=p) p_ant->next=q;
+        else
+        {
+            *first=q;
+        }
+    }
+}
+void insert_afterKey(NodeT **first,NodeT **last,int givenKey,int afterKey)
+{
+    NodeT *p=*first;
+    while(p!=NULL && p->key!=afterKey)
+    {
+        p=p->next;
+    }
+    if(p==NULL)
+    {
+        printf("Nu exista nodul cu cheia %d\n",afterKey);
+        return ;
+    }
+    else
+    {
+        NodeT *q=(NodeT *)calloc(1,sizeof(NodeT));
+        q->key=givenKey;
+        if(p==*last)
+        {
+            (*last)->next=q;
+            *last=q;
+            (*last)->next=NULL;
+        }
+        else
+        {
+            q->next=p->next;
+            p->next=q;
+        }
+    }
+}
+void delete_first(NodeT **first,NodeT **last)
+{
+    NodeT *p=*first;
+    if(*first!=NULL)
+    {
+        *first=(*first)->next;
+        free(p);
+        if(*first==NULL)
+            *last=NULL;
+    }
+    else printf("Nu sunt noduri");
+}
+void delete_last(NodeT **first,NodeT **last)
+{
+    if(*last!=NULL)
+    {
+        NodeT *p=*first,*p_ant=NULL;
+        while(p!=*last)
+        {
+            p_ant=p;
+            p=p->next;
+        }
+        *last=p_ant;
+        if(*last==NULL) *first=NULL;
+        else (*last)->next=NULL;
+        free(p);
+    }
+    else printf("Nu sunt noduri!");
+}
+void delete_key(NodeT **first,NodeT **last,int givenKey)
+{
+    NodeT *p=*first,*p_ant=NULL;
+    while(p!=NULL)
+    {
+        if(p->key==givenKey)
+            break;
+        p_ant=p;
+        p=p->next;
+    }
+    if(p==NULL)
+    {
+        printf("Nu exista nodul cu cheia:%d",givenKey);
+        return;
+    }
+    if(p==*first)
+    {
+        *first=(*first)->next;
+        if(*first==NULL) *last=NULL;
+    }
+    else if(p==*last)
+    {
+        *last=p_ant;
+        (*last)->next=NULL;
+    }
+    else
+    {
+        p_ant->next=p->next;
+    }
+    free(p);
+}
+void afiseaza(NodeT *first)
+{
+    int c=0;
+    while(first!=NULL)
+    {
+        printf("Nodul:%d cu cheia:%d\n",c++,first->key);
+        first=first->next;
+    }
+    if(c==0) printf("Lista este goala");
+}
+///ex1 opt
+void inverseaza_v2(NodeT **first,NodeT **last) ///metoda cu schimbare la curent
+{
+    if(*first!=NULL)
+    {
+        NodeT *curent=*first;
+        NodeT *nou=NULL;
+        NodeT *vechi=NULL;
+        while(curent!=NULL)
+        {
+            nou=curent->next;
+            curent->next=vechi;
+            vechi=curent;
+            curent=nou;
+        }
+        NodeT *aux=*first;
+        *first=*last;
+        *last=aux;
+    }
+}
+void inverseaza(NodeT **first,NodeT **last) ///metoda cu schimbare la q(nou)
+{
+    if(*first!=NULL)
+    {
+        NodeT *p=*first,*urm=NULL;
+        NodeT *q=p->next;
+        while(p!=*last)
+        {
+            urm=q->next;
+            q->next=p;
+            p=q;
+            q=urm;
+        }
+        urm=*first;
+        *first=*last;
+        *last=urm;
+        (*last)->next=NULL;
+    }
+}
+void insert_ordered_list(NodeT **first,NodeT **last,int givenKey) ///ex2 opt
+{
+    NodeT *p=(NodeT *)calloc(1,sizeof(NodeT));
+    p->key=givenKey;
+    if(*first==NULL)
+    {
+        *first=*last=p;
+        return;
+    }
+    if(givenKey<(*first)->key) ///prim nod
+    {
+        p->next=*first;
+        *first=p;
+    }
+    else
+    {
+        NodeT *q=*first;
+        NodeT *q_ant=NULL;
+        while(q!=NULL)
+        {
+            if(givenKey<q->key) break;
+            q_ant=q;
+            q=q->next;
+        }
+        p->next=q;
+        q_ant->next=p;
+        if(q_ant==*last) *last=p;
+    }
+}
+NodeT * element_len_k(NodeT *first,NodeT *last,int k) ///ex 3 optional
+{
+    NodeT *p=first;
+    NodeT *q=first;
+    int j=1;
+    while(j<=k && q!=NULL)
+    {
+        j++;
+        q=q->next;
+    }
+    if(q==NULL)
+    {
+        printf("K-ul e prea mare");
+        return NULL;
+    }
+    while(q!=NULL)
+    {
+        p=p->next;
+        q=q->next;
+    }
+    return p;
+}
+
+
+int main()
+{
+    ///ex3 lab2
+    /*
+    NodeT *first,*last;
+    first=NULL;
+    last=NULL;
+    insert_first(&first,&last,4);
+    insert_first(&first,&last,1);
+    insert_last(&first,&last,3);
+    NodeT *p1=search(first,2);
+    NodeT *p2=search(first,3);
+    insert_afterKey(&first,&last,22,4);
+    insert_afterKey(&first,&last,25,3);
+    afiseaza(first);
+    */
+    NodeT *first,*last;
+    first=NULL;
+    last=NULL;
+    insert_last(&first,&last,11);
+    insert_last(&first,&last,14);
+    insert_last(&first,&last,17);
+    insert_beforeKey(&first,&last,10,11);
+    // insert_afterKey(&first,&last,10,12);
+    afiseaza(first);
+    printf("\n\n\n\n");
+    insert_ordered_list(&first,&last,6);
+    insert_ordered_list(&first,&last,13);
+    insert_ordered_list(&first,&last,18);
+    insert_ordered_list(&first,&last,18);
+    afiseaza(first);
+    NodeT *cautat=element_len_k(first,last,3);
+    printf("%d",cautat->key);
+    return 0;
+}

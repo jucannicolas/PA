@@ -1,0 +1,218 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+typedef struct node
+{
+    struct node *next;
+    void *data;
+} NodeT;
+typedef struct
+{
+    int cheie;
+    char cuvant[50];
+} Date;
+NodeT *creaza_lista()
+{
+    NodeT *L=(NodeT *)calloc(1,sizeof(NodeT));
+    L->next=L;
+    L->data=NULL;
+    return L;
+}
+NodeT *creeaza_nod(char *nume,int cheie)
+{
+    NodeT *p=(NodeT *)calloc(1,sizeof(NodeT));
+    Date *d=calloc(1,sizeof(Date));
+    d->cheie=cheie;
+    strcpy(d->cuvant,nume);
+    p->data=d;
+    return p;
+}
+void insereaza_prim(NodeT *L,char *nume,int cheie)
+{
+    NodeT *p=creeaza_nod(nume,cheie);
+    p->next=L->next;
+    L->next=p;
+}
+void insereaza_ultim(NodeT *L,char *nume,int cheie)
+{
+    NodeT *p=creeaza_nod(nume,cheie);
+    NodeT *q=L->next;
+    do
+    {
+        if(q->next==L)
+        {
+            q->next=p;
+            p->next=L;
+            break;
+        }
+        q=q->next;
+    }
+    while(q!=L);
+}
+void insereaza_cres(NodeT *L,char *nume,int cheie)
+{
+    NodeT *p=creeaza_nod(nume,cheie);
+    if(L->next==L)
+    {
+        L->next=p;
+        p->next=L;
+        return;
+    }
+    NodeT *q=L->next;
+    NodeT *q_ant=L;
+    while(q!=L)
+    {
+        Date* d=q->data;
+        if(((Date*)(p->data))->cheie<=d->cheie)
+        {
+            q_ant->next=p;
+            p->next=q;
+            return;
+        }
+        q_ant=q;
+        q=q->next;
+    }
+    q_ant->next=p;
+    p->next=L;
+}
+void afiseaza(NodeT *L)
+{
+    if(L->next!=L)
+    {
+        NodeT *p=L->next;
+        do
+        {
+            Date *d=p->data;
+            printf("Studentul:%s cu cheia %d\n",d->cuvant,((Date *)p->data)->cheie);
+            p=p->next;
+        }
+        while(p!=L);
+    }
+    else printf("Lista goala\n");
+}
+void sterge_prim(NodeT *L)
+{
+    if(L->next!=L)
+    {
+        NodeT *prim=L->next;
+        L->next=prim->next;
+        if(prim->data!=NULL) free(prim->data);
+        free(prim);
+    }
+
+}
+void sterge_ultim(NodeT *L)
+{
+    if(L->next!=L)
+    {
+        NodeT *p=L->next;
+        NodeT *p_ant=L;
+        while(p->next!=L)
+            {
+                p_ant=p;
+                p=p->next;
+            }
+        p_ant->next=L;
+        if(p->data!=NULL) free(p->data);
+        free(p);
+    }
+}
+void sterge_key(NodeT *L,int key)
+{
+    if(L->next!=L)
+    {
+        NodeT *p=L->next;
+        NodeT *p_ant=L;
+        while(p!=L)
+            {
+                Date *d=p->data;
+                if(d->cheie==key) break;
+                p_ant=p;
+                p=p->next;
+            }
+        if(p==L) printf("Nu exista student cu cheia:%d\n",key);
+        else
+        {
+            p_ant->next=p->next;
+            if(p->data!=NULL) free(p->data);
+            free(p);
+        }
+    }
+}
+int main()
+{
+    char s[1000];
+    NodeT *L;
+    while(fgets(s,1000,stdin)!=NULL)
+    {
+        char instr[50];
+        if(sscanf(s,"%s",instr)==1)
+        {
+            if(strcmp(instr,"cre")==0)
+            {
+                L=creaza_lista();
+                printf("DA\n");
+                continue;
+            }
+            if(strcmp(instr,"ist")==0)
+            {
+                int nr,nr_caractere;
+                char nume[100];
+                if(sscanf(s,"%*s %d %s %n",&nr,nume,&nr_caractere)==2)
+                {
+                    insereaza_prim(L,nume,nr);
+                }
+                continue;
+            }
+            if(strcmp(instr,"ila")==0)
+            {
+                int nr;
+                char nume[100];
+                if(sscanf(s,"%s %d %s",instr,&nr,nume)==3)
+                {
+                    insereaza_ultim(L,nume,nr);
+                }
+                continue;
+            }
+            if(strcmp(instr,"ins")==0)
+            {
+                int nr;
+                char nume[100];
+                if(sscanf(s,"%s %d %s",instr,&nr,nume)==3)
+                {
+                    insereaza_cres(L,nume,nr);
+                }
+                continue;
+            }
+            if(strcmp(instr,"dst")==0)
+            {
+                sterge_prim(L);
+            }
+            if(strcmp(instr,"dla")==0)
+            {
+                sterge_ultim(L);
+            }
+            if(strcmp(instr,"del")==0)
+            {
+                int cheie;
+                if(sscanf(s,"%*s %d",&cheie)==1)
+                {
+                    sterge_key(L,cheie);
+                }
+            }
+            if(strcmp(instr,"prt")==0)
+            {
+                afiseaza(L);
+                continue;
+            }
+
+        }
+        else
+        {
+            printf("Eroare la citire linie");
+            return -1;
+        }
+    }
+
+    return 0;
+}

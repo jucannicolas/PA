@@ -1,0 +1,85 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+typedef struct node
+{
+    int key;
+    struct node *next;
+    char nume[20];
+}NodeT;
+void insert_last(NodeT **first,NodeT **last,int givenKey)
+{
+    NodeT *p=(NodeT *)calloc(1,sizeof(NodeT));
+    p->key=givenKey;
+    p->next=NULL;
+    strcpy(p->nume,"");
+    if(*first==NULL)
+    {
+        *first=*last=p;
+    }
+    else
+    {
+        (*last)->next=p;
+        *last=p;
+    }
+}
+void print(NodeT *first)
+{
+    int c=0;
+    while(first!=NULL)
+    {
+        printf("Nodul %d cu cheia:%d\n",c,first->key);
+        first=first->next;
+        c++;
+    }
+}
+NodeT *elev(NodeT *first)
+{
+    while(first!=NULL)
+    {
+        if(first->key<5) return first;
+        first=first->next;
+    }
+    return NULL;
+}
+void stergere(NodeT **first,NodeT **last,NodeT *p)
+{
+    if(p!=*last)
+    {
+        NodeT *p_viitor=p->next;
+        p->key=p_viitor->key;
+        p->next=p_viitor->next;
+        strcpy(p->nume,p_viitor->nume);
+        if(p_viitor==*last)
+        {
+            *last=p;
+        }
+        free(p_viitor);
+    }
+    else
+    {
+        if(*first==p)
+        {
+            free(p);
+            first=last=NULL;
+        }
+    }
+}
+int main()
+{
+    NodeT *first,*last;
+    first=last=NULL;
+    insert_last(&first,&last,8);
+    insert_last(&first,&last,6);
+    insert_last(&first,&last,10);
+    insert_last(&first,&last,6);
+    insert_last(&first,&last,3);
+    insert_last(&first,&last,9);
+    NodeT *p=elev(first);
+    print(first);
+    printf("%d",p->key);
+    stergere(&first,&last,p);
+    printf("\n");
+    print(first);
+    return 0;
+}

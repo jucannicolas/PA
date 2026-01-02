@@ -1,0 +1,139 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+typedef struct node
+{
+    int key;
+    struct node *next;
+} NodeT;
+void insert_ordered_list(NodeT **first,NodeT **last,int givenKey)
+{
+    NodeT *p=(NodeT *)calloc(1,sizeof(NodeT));
+    p->key=givenKey;
+    if(*first==NULL)
+    {
+        *first=*last=p;
+        return;
+    }
+    if(givenKey<(*first)->key) ///prim nod
+    {
+        p->next=*first;
+        *first=p;
+    }
+    else
+    {
+        NodeT *q=*first;
+        NodeT *q_ant=NULL;
+        while(q!=NULL)
+        {
+            if(givenKey<q->key) break;
+            q_ant=q;
+            q=q->next;
+        }
+        p->next=q;
+        q_ant->next=p;
+        if(q_ant==*last) *last=p;
+    }
+}
+void print(NodeT *first)
+{
+    int c=0;
+    while(first!=NULL)
+    {
+        printf("Nodul %d cu cheia:%d\n",c,first->key);
+        first=first->next;
+        c++;
+    }
+}
+void adaugare_nod(NodeT **first,NodeT **last,NodeT *nod)
+{
+    nod->next=NULL;
+    if(*first==NULL)
+    {
+        *first=*last=nod;
+    }
+    else
+    {
+        (*last)->next=nod;
+        *last=nod;
+    }
+}
+void interclasare(NodeT **f1,NodeT **l1,NodeT **f2,NodeT **l2)
+{
+    NodeT *p1=*f1,*p2=*f2;
+    NodeT *first=NULL,*last=NULL;
+    while(p1!=NULL && p2!=NULL)
+    {
+        if(p1->key<=p2->key)
+        {
+            NodeT *temp=p1->next;
+            adaugare_nod(&first,&last,p1);
+            p1=temp;
+        }
+        else
+        {
+            NodeT *temp=p2->next;
+            adaugare_nod(&first,&last,p2);
+            p2=temp;
+        }
+    }
+    while(p1!=NULL)
+    {
+        NodeT *temp=p1->next;
+        adaugare_nod(&first,&last,p1);
+        p1=temp;
+    }
+    while(p2!=NULL)
+    {
+        NodeT *temp=p2->next;
+        adaugare_nod(&first,&last,p2);
+        p2=temp;
+    }
+    *f2=*l2=NULL;
+    *f1=first;
+    *l1=last;
+}
+int main()
+{
+    NodeT *first1,*first2,*last1,*last2;
+    first1=first2=last1=last2=NULL;
+    char s[1000];
+    while(fgets(s,1000,stdin)!=NULL)
+    {
+
+        if(s[0]=='i')
+        {
+            int nr;
+            int offset=0;
+            int nr_caractere_citite;
+            NodeT **first,**last;
+            if(s[1]=='1') first=&first1,last=&last1;
+            else first=&first2,last=&last2;
+            while(sscanf(s+2+offset,"%d%n",&nr,&nr_caractere_citite)==1)
+            {
+                offset +=nr_caractere_citite;
+                insert_ordered_list(first,last,nr);
+            }
+
+        }
+        else if(s[0] == 'p')
+        {
+            if(s[1] == '1')
+            {
+                printf("1:");
+                print(first1);
+            }
+            else
+            {
+                printf("2:");
+                print(first2);
+            }
+        }
+        else if(s[0]=='m')
+        {
+            interclasare(&first1,&last1,&first2,&last2);
+        }
+    }
+
+    return 0;
+}

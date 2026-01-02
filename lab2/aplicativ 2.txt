@@ -1,0 +1,120 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct node
+{
+    int key;
+    struct node *next;
+} NodeT;
+void insert_last(NodeT **first,NodeT **last,int givenKey)
+{
+    NodeT *p=(NodeT *)calloc(1,sizeof(NodeT));
+    p->key=givenKey;
+    p->next=NULL;
+    if(*first==NULL)
+    {
+        *first=*last=p;
+    }
+    else
+    {
+        (*last)->next=p;
+        *last=p;
+    }
+}
+void print(NodeT *first)
+{
+    int c=0;
+    while(first!=NULL)
+    {
+        printf("Nodul %d cu cheia:%d\n",c,first->key);
+        first=first->next;
+        c++;
+    }
+}
+void intersectie(NodeT **f,NodeT **l,NodeT *f1,NodeT *l1,NodeT *f2,NodeT *l2)
+{
+    NodeT *p1=f1,*p2=f2;
+    while(p1!=NULL && p2!=NULL)
+    {
+        if(p1->key==p2->key)
+        {
+            insert_last(f,l,p1->key);
+            p1=p1->next;
+            p2=p2->next;
+        }
+        else if(p1->key<p2->key)
+            p1=p1->next;
+        else p2=p2->next;
+    }
+}
+void reuniune(NodeT **f,NodeT **l,NodeT *f1,NodeT *l1,NodeT *f2,NodeT *l2)
+{
+    NodeT *p1=f1,*p2=f2;
+    while(p1!=NULL && p2!=NULL)
+    {
+        if(p1->key==p2->key)
+        {
+            insert_last(f,l,p1->key);
+            p1=p1->next;
+            p2=p2->next;
+        }
+        else if(p1->key<p2->key)
+        {
+            insert_last(f,l,p1->key);
+            p1=p1->next;
+        }
+        else
+        {
+            insert_last(f,l,p2->key);
+            p2=p2->next;
+        }
+    }
+    while(p1!=NULL)
+    {
+        insert_last(f,l,p1->key);
+        p1=p1->next;
+    }
+    while(p2!=NULL)
+    {
+        insert_last(f,l,p2->key);
+        p2=p2->next;
+    }
+}
+int main()
+{
+    FILE *pf1=fopen("F1.txt","r");
+    if(pf1==NULL)
+    {
+        printf("Eroare la citire fisier");
+        return -1;
+    }
+    FILE *pf2=fopen("F2.txt","r");
+    if(pf2==NULL)
+    {
+        printf("Eroare la citire fisier");
+        return -1;
+    }
+    NodeT *f1,*f2,*l1,*l2;
+    f1=f2=l1=l2=NULL;
+    int cheie;
+    while(fscanf(pf1,"%d",&cheie)==1)
+    {
+        insert_last(&f1,&l1,cheie);
+    }
+    while(fscanf(pf2,"%d",&cheie)==1)
+    {
+        insert_last(&f2,&l2,cheie);
+    }
+    print(f1);
+    print(f2);
+    NodeT *int_f,*int_l;
+    int_f=int_l=NULL;
+    intersectie(&int_f,&int_l,f1,l1,f2,l2);
+    printf("Intersectie:\n");
+    print(int_f);
+    NodeT *reu_f,*reu_l;
+    reu_f=reu_l=NULL;
+    reuniune(&reu_f,&reu_l,f1,l1,f2,l2);
+    printf("Reuniune:\n");
+    print(reu_f);
+    return 0;
+}
