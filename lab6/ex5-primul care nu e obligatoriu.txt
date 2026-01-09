@@ -1,0 +1,115 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define M 10
+int f1(char s[100])
+{
+    int suma=0,i=0;
+    while(s[i])
+    {
+        suma+=s[i];
+        i++;
+    }
+    return suma;
+}
+int f2(int key,int i)
+{
+    return (key%M + i*(5-(key%5)))%M;
+}
+void insert_hash(char hTable[M][100],char cuv[100])
+{
+    int i=0;
+    int key=f1(cuv);
+    do
+    {
+        int j=f2(key,i);
+        if(strcmp(hTable[j],cuv)==0)
+            return;
+        if(strcmp(hTable[j],"")==0)
+        {
+            strcpy(hTable[j],cuv);
+            return;
+        }
+        i++;
+    }
+    while(i<M);
+    printf("Nu s-a putut adauga\n");
+    return;
+}
+int cautare(char hTable[M][100],char cuv[])
+{
+    int i=0;
+    int key=f1(cuv);
+    do
+    {
+        int j=f2(key,i);
+        if(strcmp(hTable[j],cuv)==0) return 1;
+        if(strcmp(hTable[j],"")==0) return 0;
+        i++;
+    }
+    while(i<M);
+}
+int solve_ex(char hTable[M][100],char s[100],int imax,int lungime_cuvinte)
+{
+    int contor=0,i=0;
+    while(i<=imax)
+    {
+        char cuv_actual[lungime_cuvinte+1];
+        strncpy(cuv_actual,s+i,lungime_cuvinte);
+        cuv_actual[lungime_cuvinte]=0;
+        contor+=cautare(hTable,cuv_actual);
+        i++;
+    }
+    return contor;
+}
+int main()
+{
+    FILE *pf=fopen("Date.in","r");
+    if(pf==NULL)
+    {
+        printf("Nu s-a putut deschide fisierul");
+        return -1;
+    }
+    char s[100];
+    fgets(s,100,pf);
+    int ls=strlen(s);
+    if(s[ls-1]=='\n' && ls>0)
+        s[ls-1]=0;
+    ls--;
+    char hTable[M][100],cuv[100];
+    int i;
+    for(i=0; i<M; i++)
+        strcpy(hTable[i],"");
+    int lungime_cuvinte=-1,lungime_text=strlen(s);
+    while(fgets(cuv,100,pf)!=NULL)
+    {
+        int lc=strlen(cuv);
+        if(lungime_cuvinte==-1)
+        {
+            if(cuv[lc-1]=='\n')
+            {
+                cuv[lc-1]=0;
+                lungime_cuvinte=lc-1;
+            }
+            else lungime_cuvinte=lc;
+        }
+        else if(cuv[lc-1]=='\n')
+            cuv[lc-1]=0;
+
+        insert_hash(hTable,cuv);
+    }
+    int imax=lungime_text-lungime_cuvinte;
+    i=0;
+    int contor=solve_ex(hTable,s,imax,lungime_cuvinte);
+    FILE *pr=fopen("Date.out","w");
+    if(pr==NULL)
+    {
+        printf("Fisierul nu s-a putut deschide");
+        fclose(pf);
+        return -1;
+    }
+    fprintf(pr,"%d",contor);
+    fclose(pr);
+    fclose(pf);
+    return 0;
+}

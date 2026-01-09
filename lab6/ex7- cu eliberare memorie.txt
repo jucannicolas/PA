@@ -1,0 +1,93 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define M 10
+typedef struct node
+{
+    char s[100];
+    struct node* next;
+} NodeT;
+int f1(char s[])
+{
+    int suma=0,i=0;
+    while(s[i])
+    {
+        suma +=s[i];
+        i++;
+    }
+    return suma;
+}
+int f2(int key)
+{
+    return key%M;
+}
+int exista(NodeT *p,char s[])
+{
+    while(p!=NULL)
+    {
+        if(strcmp(s,p->s)==0)
+            return 1;
+        p=p->next;
+    }
+    return 0;
+}
+void insert(NodeT *hTable[M],char cuv[])
+{
+    int j=f2(f1(cuv));
+    if(exista(hTable[j],cuv)==1)
+        return ;
+    NodeT *p=(NodeT *)calloc(1,sizeof(NodeT));
+    strcpy(p->s,cuv);
+    p->next=hTable[j];
+    hTable[j]=p;
+}
+void afisare(NodeT **hTable)
+{
+    int i;
+    for(i=0; i<M; i++)
+    {
+        printf("%d:",i);
+        NodeT *p=hTable[i];
+        while(p!=NULL)
+        {
+            printf("%s ",p->s);
+            p=p->next;
+        }
+        printf("\n");
+    }
+}
+void free_mem(NodeT **hTable)
+{
+    int i;
+
+    for(i=0;i<M;i++)
+    {
+        NodeT *p=hTable[i],*p_viitor;
+        while(p!=NULL)
+        {
+            p_viitor=p->next;
+            free(p);
+            p=p_viitor;
+        }
+    }
+
+    free(hTable);
+}
+int main()
+{
+    int n;
+    scanf("%d",&n);
+    NodeT **hTable=(NodeT **)calloc(M,sizeof(NodeT *));
+    int i;
+    for(i=0;i<M;i++)
+        hTable[i]=NULL;
+    char cuv[100];
+    for(i=0;i<n;i++)
+    {
+        scanf("%s",cuv);
+        insert(hTable,cuv);
+    }
+    afisare(hTable);
+    free_mem(hTable);
+    return 0;
+}

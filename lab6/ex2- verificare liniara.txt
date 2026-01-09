@@ -1,0 +1,39 @@
+#include <stdio.h> ///Mai trebuie luat cazul daca sunt duplicate
+#include <stdlib.h>
+#define M 7
+int h_function(int key,int i)
+{
+    return (key+i)%M;
+}
+void inserare_ver_liniara(int *hTable,int key)
+{
+    int i=0; ///numar incercari
+    do
+    {
+        int j=h_function(key,i);
+        if(hTable[j]==NULL)
+        {
+            hTable[j]=key;
+            return;
+        }
+        i++;
+    }
+    while(i<M);
+    printf("Sunt prea multe elemente in hashTable");
+    return ;
+}
+int main()
+{
+    int hTable[7]= {0},i;
+    inserare_ver_liniara(hTable,19);
+    inserare_ver_liniara(hTable,36);
+    inserare_ver_liniara(hTable,5);
+    inserare_ver_liniara(hTable,21);
+    inserare_ver_liniara(hTable,4);
+    inserare_ver_liniara(hTable,26);
+    inserare_ver_liniara(hTable,14);
+
+    for(i=0; i<M; i++)
+        printf("%d ",hTable[i]);
+    return 0;
+}

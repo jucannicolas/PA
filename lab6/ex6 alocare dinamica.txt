@@ -1,0 +1,86 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define M 10
+int prim(int x)
+{
+    if(x<2) return 0;
+    if(x==2) return 1;
+    if(x%2==0) return 0;
+    int i=3;
+    for(i=3;i*i<=x;i=i+2)
+        if(x%i==0) return 0;
+    return 1;
+}
+int next_prim(int n)
+{
+    while(prim(n)==0)
+        n++;
+    return n;
+}
+int h_func(int key,int i,int nn)
+{
+    return (key%nn +((5-key%5)*i))%nn;
+}
+int insert(int hTable[],int key,int nn)
+{
+    int i=0;
+    do
+    {
+        int j=h_func(key,i,nn);
+        if(hTable[j]==key)
+        {
+            return -1;
+        }
+        if(hTable[j]==-1)
+        {
+            hTable[j]=key;
+            return j;
+        }
+        i++;
+    }while(i<nn);
+    return -1;
+}
+FILE  *deschide_fisier(char nume_fis[],char mod[])
+{
+    FILE *pf=fopen(nume_fis,mod);
+    if(pf==NULL)
+    {
+        return NULL;
+    }
+    return pf;
+}
+int main()
+{
+    FILE *pf=deschide_fisier("Date.in","r");
+    if(pf==NULL)
+    {
+        printf("Nu s-a putut deschide fisierul");
+        return -1;
+    }
+    FILE *pr=deschide_fisier("Date.out","w");
+    if(pr==NULL)
+    {
+        printf("Nu s-a putut deschide fisierul");
+        fclose(pf);
+        return -1;
+    }
+    int n,i;
+    fscanf(pf,"%d",&n);
+    int nn=next_prim(n*2);
+    int *hTable=(int *)malloc(sizeof(int)*nn);
+    for(i=0;i<nn;i++)
+        hTable[i]=-1;
+    int x;
+    for(i=0;i<n;i++)
+    {
+        fscanf(pf,"%d",&x);
+        if(insert(hTable,x,nn)!=-1)
+        {
+            fprintf(pr,"%d ",x);
+        }
+    }
+    free(hTable);
+    fclose(pf);
+    fclose(pr);
+    return 0;
+}

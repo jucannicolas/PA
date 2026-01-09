@@ -1,0 +1,61 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define M 7
+int f_h1(int key)
+{
+    return key%M;
+}
+int f_h2(int key)
+{
+    return 5-(key%5);
+}
+int f_dispersie(int key,int i)
+{
+    return (f_h1(key)+i*f_h2(key))%M;
+}
+void inserare(int *hTable,int key)
+{
+    int i=0;///nr incercari
+    do
+    {
+        int j=f_dispersie(key,i);
+        if(hTable[j]==0)
+        {
+            hTable[j]=key;
+            return;
+        }
+        i++;
+    }
+    while(i<M);
+    printf("Nu mai este loc");
+}
+int cautare(int *hTable,int key)
+{
+    int i=0;
+    do
+    {
+        int j=f_dispersie(key,i);
+        if(hTable[j]==key) return j;
+        if(hTable[j]==0) return -1;
+        i++;
+    }while(i<M);
+    return -1;
+}
+int main()
+{
+    int hTable[7]= {0};
+    inserare(hTable,19);
+    inserare(hTable,36);
+    inserare(hTable,5);
+    inserare(hTable,21);
+    inserare(hTable,4);
+    inserare(hTable,26);
+    inserare(hTable,14);
+    int i;
+    for(i=0; i<M; i++)
+        printf("%d ",hTable[i]);
+    int rez=cautare(hTable,15);
+    if(rez==-1) printf("\nNu exista elementul");
+    else printf("\nExista");
+    return 0;
+}
