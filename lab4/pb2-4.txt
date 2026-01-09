@@ -1,0 +1,90 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct node
+{
+    int id;
+    struct node *left,*right;
+}NodeT;
+NodeT *createBinTreeFromFile(FILE *pf)
+{
+    int id;
+    fscanf(pf,"%d",&id);
+    if(id==0)
+        return NULL;
+    NodeT *p=(NodeT*)calloc(1,sizeof(NodeT));
+    if(p==NULL)
+    {
+        perror("Problema la alocare");
+        exit(1);
+    }
+    p->id=id;
+    p->left=createBinTreeFromFile(pf);
+    p->right=createBinTreeFromFile(pf);
+    return p;
+}
+void preorder(NodeT *p)
+{
+    if(p!=NULL)
+    {
+       printf("%d ",p->id);
+        preorder(p->left);
+        preorder(p->right);
+    }
+
+}
+void interschimbare(NodeT **p) ///problema 2
+{
+    if(p==NULL || *p==NULL)
+    {
+        printf("Eroare la zona de memorie");
+        return;
+    }
+    NodeT *aux=(*p)->right;
+    (*p)->right=(*p)->left;
+    (*p)->left=aux;
+}
+int maxim(int a,int b)
+{
+    if(a>b) return a;
+    return b;
+}
+int adancime_maxima(NodeT *p,int adancime_curenta) ///pb3
+{
+    if(p==NULL) return -1;
+    printf("Nodul %d are adancimea:%d\n",p->id,adancime_curenta);
+    if(p->right==NULL && p->left==NULL) return adancime_curenta;
+    int stanga=adancime_maxima(p->left,adancime_curenta+1);
+    int dreapta=adancime_maxima(p->right,adancime_curenta+1);
+    return maxim(stanga,dreapta);
+}
+int inaltime_maxima(NodeT *p) 
+{
+    if(p==NULL) return -1;
+    return 1+maxim(inaltime_maxima(p->left),inaltime_maxima(p->right));
+}
+int diametru_arbore(NodeT *p) ///pb4
+{
+    if(p==NULL) return 0;
+    int diametru_stanga=diametru_arbore(p->left);
+    int diametru_dreapta=diametru_arbore(p->right);
+    int lung_max_drum_rad=2+inaltime_maxima(p->left)+inaltime_maxima(p->right);
+    int max=maxim(diametru_dreapta,diametru_stanga);
+    max=maxim(max,lung_max_drum_rad);
+    return max;
+}
+
+int main()
+{
+    FILE *pf=fopen("ArboreBinar.txt","r");
+    NodeT *root=createBinTreeFromFile(pf);
+    preorder(root);
+    printf("\n");
+    interschimbare(&root);
+    preorder(root);
+    printf("\n");
+    int a=adancime_maxima(root,0);
+    printf("Adancimea maxima este:%d\n",a);
+    int d=diametru_arbore(root);
+    printf("Diametru arbore:%d\n",d);
+    return 0;
+}
