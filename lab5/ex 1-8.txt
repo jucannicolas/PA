@@ -1,0 +1,292 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct node
+{
+    int key;
+    struct node *left,*right;
+} NodeT;
+NodeT* searchKey(NodeT *root,int key) ///ex2
+{
+    if(root==NULL) return NULL;
+    if(root->key==key) return root;
+    if(key<root->key) return searchKey(root->left,key);
+    return searchKey(root->right,key);
+}
+void insert_node_rec(NodeT **root,int key) ///ex1
+{
+    if(*root==NULL)
+    {
+        NodeT *p=(NodeT *)calloc(1,sizeof(NodeT));
+        p->key=key;
+        p->left=p->right=NULL;
+        *root=p;
+        return ;
+    }
+    if((*root)->key==key)
+    {
+        printf("Deja exista un nod cu cheia:%d\n",key);
+        return;
+    }
+    if(key<(*root)->key)
+    {
+        insert_node_rec(&((*root)->left),key);
+        return;
+    }
+    insert_node_rec(&((*root)->right),key);
+}
+NodeT *insert_node_nerec(NodeT *root,int key) ///ex1
+{
+    if(root==NULL)
+    {
+        NodeT *p=(NodeT *)calloc(1,sizeof(NodeT));
+        p->key=key;
+        p->left=p->right=NULL;
+        root=p;
+        return root;
+    }
+    NodeT *current=root,*parent=NULL;
+    while(current!=NULL)
+    {
+        if(current->key==key)
+        {
+            printf("Deja exista un nod cu cheia:%d\n",key);
+            return root;
+        }
+        parent=current;
+        if(key<current->key) current=current->left;
+        else current=current->right;
+    }
+    NodeT *p=(NodeT *)calloc(1,sizeof(NodeT));
+    p->key=key;
+    p->left=p->right=NULL;
+    if(key<parent->key) parent->left=p;
+    else parent->right=p;
+    return root;
+}
+void preorder(NodeT *root) ///ex3
+{
+    if(root!=NULL)
+    {
+        printf("%d ",root->key);
+        preorder(root->left);
+        preorder(root->right);
+    }
+}
+void inorder(NodeT *root)
+{
+    if(root!=NULL)
+    {
+        inorder(root->left);
+        printf("%d ",root->key);
+        inorder(root->right);
+    }
+}
+void postorder(NodeT *root)
+{
+    if(root!=NULL)
+    {
+        postorder(root->left);
+        postorder(root->right);
+        printf("%d ",root->key);
+
+    }
+}
+NodeT *findMin(NodeT *p) ///ex4
+{
+    if(p==NULL)
+    {
+        return NULL;
+    }
+    if(p->left==NULL)
+        return p;
+    return findMin(p->left);
+}
+NodeT *findMax(NodeT *p) ///ex5
+{
+    if(p==NULL)
+    {
+        return NULL;
+    }
+    while(p->right!=NULL)
+    {
+        p=p->right;
+    }
+    return p;
+}
+NodeT *succesor(NodeT *node,NodeT *root) ///ex6
+{
+    if(searchKey(root,node->key)==NULL)
+        return NULL;
+    if(findMax(root)==node)
+    {
+        return NULL;///Nodul dat este maximul
+    }
+    if(node->right!=NULL)
+    {
+        return findMin(node->right);///Caz 1, exista subarbore drept
+    }
+    NodeT *nod_succesor=NULL,*current=root; ///Caz 2, nu exista subarbore drept
+    while(current!=node)
+    {
+        if(current->key<node->key)
+        {
+            current=current->right;
+        }
+        else
+        {
+            nod_succesor=current;
+            current=current->left;
+        }
+    }
+    return nod_succesor;
+}
+NodeT *predecessor(NodeT *node,NodeT *root) ///ex7
+{
+    if(searchKey(root,node->key)==NULL)
+        return NULL;
+    if(node==findMin(root))
+        return NULL; ///Nodul dat este minimul
+    if(node->left) ///Cazul 1
+        return findMax(node->left);
+    NodeT *nod_predecesor=NULL,*current=root; ///Cazul 2 cand nu exista subarbore stang
+    while(current!=node)
+    {
+        if(current->key<node->key)
+        {
+            nod_predecesor=current;
+            current=current->right;
+        }
+        else current=current->left;
+    }
+    return nod_predecesor;
+}
+NodeT *parentOfNode(NodeT* node,NodeT *root)///ex8 iterativ
+{
+    NodeT *parent=NULL,*current=root;
+    while(current!=node)
+    {
+        parent=current;
+        if(node->key<current->key)  current=current->left;
+        else current=current->right;
+    }
+    return parent;
+}
+NodeT *deleteNode(NodeT *root,int key)
+{
+    NodeT *p=searchKey(root,key);
+    if(p==NULL)
+    {
+        printf("Nu exista nodul\n");
+        return root;
+    }
+    if(p->right==NULL && p->left==NULL) ///Cazul 1,nodul e frunza
+    {
+        if(p==root)
+        {
+            free(p);
+            return NULL;
+        }
+        NodeT *parent=parentOfNode(p,root);
+        if(parent->left->key==key) parent->left=NULL;
+        else parent->right=NULL;
+    }
+    else if(p->right==NULL || p->left==NULL) ///Cazul 2, nodul are un fiu
+    {
+        if(p==root)
+        {
+            if(root->left!=NULL) root=root->left;
+            else root=root->right;
+            free(p);
+            return root;
+        }
+        NodeT *parent=parentOfNode(p,root);
+        NodeT *urm_p=p->left;
+        if(p->right!=NULL) urm_p=p->right;
+        if(parent->left==p) parent->left=urm_p;
+        else parent->right=urm_p;
+    }
+    else ///Cazul 3,doi fii, cauta sucesorul, il sterge folosind functia si apoi ii da nodului initial cheia sucesorului
+    {
+        NodeT *succesor_p=findMin(p->right);
+        int cheie_succesor=succesor_p->key;
+        root=deleteNode(root,cheie_succesor);
+        p->key=cheie_succesor;
+        return root;
+    }
+    free(p);
+    return root;
+}
+NodeT *deleteNode_rec(NodeT *root,int key)
+{
+    NodeT *p;
+    if(root==NULL) return root;
+
+    if(key<root->key) root->left=deleteNode_rec(root->left,key); ///Cautam nodul in subarborele stang
+
+    else if(key>root->key) root->right=deleteNode(root->right,key); ///Cautam nodul in subarborele drept
+
+    else ///Am gasit cheia
+    {
+        if(root->left==NULL) ///Cazul 1 si 2
+        {
+            p=root->right;
+            free(root);
+            return p;
+        }
+        else if(root->right==NULL) ///Cazul 2, fiul drept e null
+        {
+            p=root->left;
+            free(root);
+            return p;
+        }
+        else ///Cazul 3, 2 fii
+        {
+            
+            p=findMin(root->right); ///Caut succesorul lui root(care e defapt al nodului cautat);
+            root->key=p->key;
+            root->right=deleteNode_rec(root->right,key);
+            
+        }
+    }
+    return root;
+}
+int main()
+{
+    NodeT *root=NULL;
+    root=insert_node_nerec(root,18);
+    root=insert_node_nerec(root,15);
+    root=insert_node_nerec(root,24);
+    root=insert_node_nerec(root,22);
+    root=insert_node_nerec(root,10);
+    root=insert_node_nerec(root,6);
+    root=insert_node_nerec(root,17);
+    root=insert_node_nerec(root,26);
+    root=insert_node_nerec(root,30);
+    root=insert_node_nerec(root,28);
+    root=insert_node_nerec(root,32);
+    NodeT *p=searchKey(root,39);
+    if(p==NULL) printf("Nod inexistent\n");
+    else printf("%d\n",p->key);
+    inorder(root);
+    printf("\n");
+    /*
+    NodeT *min=findMin(root);
+    if(min!=NULL) printf("Minimul este:%d",min->key);
+    printf("\n");
+    NodeT *max=findMax(root);
+    if(max!=NULL) printf("Maximul este:%d",max->key);
+    */
+    NodeT *p1=searchKey(root,15);
+    printf("Nodul %d\n",p1->key);
+    NodeT *sucesor=succesor(p1,root);
+    if(sucesor!=NULL)
+        printf("Succesorul este:%d\n",sucesor->key);
+    else printf("Nodul dat nu are succesor,fiind cel mai mare\n");
+    NodeT *pre=predecessor(p1,root);
+    if(pre!=NULL)
+        printf("Predecesorul este:%d\n",pre->key);
+    else printf("Nodul dat nu are predecesor,fiind cel mai mic\n");
+    root=deleteNode_rec(root,26);
+    inorder(root);
+    return 0;
+}

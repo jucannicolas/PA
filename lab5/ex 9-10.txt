@@ -1,0 +1,229 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct node
+{
+    int key;
+    struct node *left,*right;
+} NodeT;
+typedef struct nodea
+{
+    int key;
+    struct nodea *next;
+}Node;
+void insert_node_rec(NodeT **root,int key) ///ex1
+{
+    if(*root==NULL)
+    {
+        NodeT *p=(NodeT *)calloc(1,sizeof(NodeT));
+        p->key=key;
+        p->left=p->right=NULL;
+        *root=p;
+        return ;
+    }
+    if((*root)->key==key)
+    {
+        printf("Deja exista un nod cu cheia:%d\n",key);
+        return;
+    }
+    if(key<(*root)->key)
+    {
+        insert_node_rec(&((*root)->left),key);
+        return;
+    }
+    insert_node_rec(&((*root)->right),key);
+}
+NodeT *insert_node_nerec(NodeT *root,int key) ///ex1
+{
+    if(root==NULL)
+    {
+        NodeT *p=(NodeT *)calloc(1,sizeof(NodeT));
+        p->key=key;
+        p->left=p->right=NULL;
+        root=p;
+        return root;
+    }
+    NodeT *current=root,*parent=NULL;
+    while(current!=NULL)
+    {
+        if(current->key==key)
+        {
+            printf("Deja exista un nod cu cheia:%d\n",key);
+            return root;
+        }
+        parent=current;
+        if(key<current->key) current=current->left;
+        else current=current->right;
+    }
+    NodeT *p=(NodeT *)calloc(1,sizeof(NodeT));
+    p->key=key;
+    p->left=p->right=NULL;
+    if(key<parent->key) parent->left=p;
+    else parent->right=p;
+    return root;
+}
+void preorder(NodeT *root) ///ex3
+{
+    if(root!=NULL)
+    {
+        printf("%d ",root->key);
+        preorder(root->left);
+        preorder(root->right);
+    }
+}
+int suntInOglinda(NodeT *a,NodeT *b) //ex9
+{
+    if(a==NULL && b==NULL) return 1;
+    if(a==NULL || b==NULL || a->key!=b->key) return 0;
+
+    return (suntInOglinda(a->left,b->right)&&suntInOglinda(a->right,b->left));
+}
+/*
+void inorder(NodeT *root,Node **af,Node **al) 
+{
+    if(root!=NULL)
+    {
+        inorder(root->left,af,al);
+        Node *p=(Node*)calloc(1,sizeof(Node));
+        p->key=root->key;
+        p->next=NULL;
+        if(*af==NULL)
+        {
+            *af=*al=p;
+            printf("DA");
+        }
+        else
+        {
+            (*al)->next=p;
+            *al=p;
+            printf("Nu");
+        }
+        inorder(root->right,af,al);
+    }
+}
+void afisare_lista(Node *a)
+{
+    while(a!=NULL)
+    {
+        printf("%d ",a->key);
+        a=a->next;
+    }
+}
+*/
+void inOrder(NodeT *root,int **a,int *n) ///ex10
+{
+    if(root!=NULL)
+    {
+        inOrder(root->left,a,n);
+        (*n)++;
+        *a=(int*)realloc(*a,(*n)*sizeof(int));
+        (*a)[(*n)-1]=root->key;
+        inOrder(root->right,a,n);
+    }
+}
+NodeT* creare_arbore(int *c,int stanga,int dreapta)
+{
+    if(stanga>dreapta) return NULL;
+    NodeT *root=(NodeT *)calloc(1,sizeof(NodeT));
+    int mij=(stanga+dreapta)/2;
+    root->key=c[mij];
+    root->left=creare_arbore(c,stanga,mij-1);
+    root->right=creare_arbore(c,mij+1,dreapta);
+    return root;
+}
+void afisare_inorder(NodeT *p)
+{
+    if(p!=NULL)
+    {
+        afisare_inorder(p->left);
+        printf("%d ",p->key);
+        afisare_inorder(p->right);
+    }
+}
+void creare(NodeT **root,int *c,int stanga,int dreapta)
+{
+    if(stanga<=dreapta)
+    {
+        int mij=(stanga+dreapta)/2;
+        insert_node_rec(root,c[mij]);
+        creare(root,c,stanga,mij-1);
+        creare(root,c,mij+1,dreapta);
+    }
+}
+NodeT *interclasare(NodeT *roota,NodeT *rootb)
+{
+    int *a=NULL,na=0,i;
+    inOrder(roota,&a,&na);
+    int *b=NULL,nb=0;
+    inOrder(rootb,&b,&nb);
+    for(i=0;i<na;i++)
+        printf("%d ",a[i]);
+    printf("\n");
+    for(i=0;i<nb;i++)
+        printf("%d ",b[i]);
+    int *c=(int *)calloc(na+nb,sizeof(int));
+    int ia=0,ib=0,nc=0;
+    while(ia!=na && ib!=nb)
+    {
+        if(a[ia]>b[ib])
+        {
+            c[nc++]=b[ib];
+            ib++;
+
+        }
+        else if(a[ia]<b[ib])
+        {
+            c[nc++]=a[ia];
+            ia++;
+        }
+        else ia++;
+    }
+    while(ia!=na)
+    {
+        c[nc++]=a[ia];
+        ia++;
+    }
+    while(ib!=nb)
+    {
+        c[nc++]=b[ib];
+        ib++;
+    }
+    printf("\n");
+    for(i=0;i<nc;i++)
+        printf("%d ",c[i]);
+        printf("\n");
+    NodeT *root=creare_arbore(c,0,nc-1);
+    /*NodeT *root=NULL;
+    creare(&root,c,0,nc-1);*/
+    return root;
+}
+
+int main()
+{
+    NodeT *roota=NULL;
+    roota=insert_node_nerec(roota,18);
+    roota=insert_node_nerec(roota,15);
+    roota=insert_node_nerec(roota,24);
+    roota=insert_node_nerec(roota,22);
+    roota=insert_node_nerec(roota,10);
+    roota=insert_node_nerec(roota,6);
+    roota=insert_node_nerec(roota,17);
+    roota=insert_node_nerec(roota,26);
+    roota=insert_node_nerec(roota,30);
+    roota=insert_node_nerec(roota,28);
+    roota=insert_node_nerec(roota,32);
+    NodeT *rootb=NULL;
+    rootb=insert_node_nerec(rootb,15);
+    rootb=insert_node_nerec(rootb,6);
+    rootb=insert_node_nerec(rootb,7);
+    rootb=insert_node_nerec(rootb,18);
+    rootb=insert_node_nerec(rootb,3);
+    rootb=insert_node_nerec(rootb,13);
+    rootb=insert_node_nerec(rootb,2);
+    rootb=insert_node_nerec(rootb,4);
+    rootb=insert_node_nerec(rootb,17);
+    rootb=insert_node_nerec(rootb,20);
+    rootb=insert_node_nerec(rootb,9);
+    NodeT *root=interclasare(roota,rootb);
+    afisare_inorder(root);
+    return 0;
+}

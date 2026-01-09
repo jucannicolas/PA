@@ -1,0 +1,120 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+typedef struct node
+{
+    char s[100];
+    struct node *left,*right;
+}NodeT;
+NodeT *adaugare_cuvant(NodeT *root,char s[])
+{
+    NodeT *p=(NodeT*)calloc(1,sizeof(NodeT));
+    strcpy(p->s,s);
+    p->left=p->right=NULL;
+    if(root==NULL)
+    {
+        root=p;
+        return root;
+    }
+    NodeT *current=root,*parent=NULL;
+    while(current!=NULL)
+    {
+        parent=current;
+        if(strcmp(s,current->s)>0) current=current->right;
+
+        else if (strcmp(s,current->s)<0)current=current->left;
+        else
+        {
+            return root;
+        }
+    }
+    if(strcmp(s,parent->s)>0) parent->right=p;
+    else parent->left=p;
+    return root;
+}
+void preorder(NodeT *root)
+{
+    if(root!=NULL)
+    {
+        printf("%s ",root->s);
+        preorder(root->left);
+        preorder(root->right);
+    }
+}
+int maxim(int a,int b)
+{
+    if(a>b) return a;
+    return b;
+}
+int inaltime(NodeT *root)
+{
+    if(root==NULL) return -1;
+    return 1+maxim(inaltime(root->left),inaltime(root->right));
+}
+NodeT *findMax(NodeT *root)
+{
+    if(root==NULL) return NULL;
+    while(root->right!=NULL)
+    {
+        root=root->right;
+    }
+    return root;
+}
+NodeT *stergere(NodeT *root,char s[])
+{
+
+    if(root==NULL) return NULL;
+    if(strcmp(s,root->s)>0)
+    {
+        root->right=stergere(root->right,s);
+    }
+    else if(strcmp(s,root->s)<0)
+    {
+        root->left=stergere(root->left,s);
+    }
+    else
+    {
+        NodeT *p;
+        if(root->left==NULL)
+        {
+            p=root->right;
+            free(root);
+            return p;
+        }
+        else if(root->right==NULL)
+        {
+            p=root->left;
+            free(root);
+            return p;
+        }
+        else
+        {
+            p=findMax(root->left);
+            strcpy(root->s,p->s);
+            root->left=stergere(root->left,p->s);
+        }
+    }
+    return root;
+}
+int main()
+{
+    FILE *pf=fopen("date.txt","r");
+    if(pf==NULL)
+    {
+        printf("Nu s-a putut deschide fisierul");
+        return -1;
+    }
+    NodeT *root=NULL;
+    char s[100];
+    while(fscanf(pf,"%s",s)!=EOF)
+    {
+        root=adaugare_cuvant(root,s);
+    }
+
+    preorder(root);
+    scanf("%s",s);
+    printf("\n");
+    root=stergere(root,s);
+    preorder(root);
+    return 0;
+}

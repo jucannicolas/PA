@@ -1,0 +1,15 @@
+int verificaAVL(NodeT* root) {
+    if (root == NULL) return 0; // Un arbore gol are inaltimea 0 si e echilibrat
+
+    int hs = verificaAVL(root->left);
+    if (hs == -1) return -1; // Subarborele stang e deja neechilibrat
+
+    int hd = verificaAVL(root->right);
+    if (hd == -1) return -1; // Subarborele drept e deja neechilibrat
+
+    // Verificam conditia de echilibru pentru nodul curent
+    if (abs(hs - hd) > 1) return -1;
+
+    // Daca e echilibrat, returnam inaltimea reala pentru a fi folosita de parinte
+    return 1 + (hs > hd ? hs : hd);
+}
