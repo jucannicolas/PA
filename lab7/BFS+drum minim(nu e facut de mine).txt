@@ -1,0 +1,171 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct node
+{
+    int key;
+    struct node* next;
+} NodeT;
+typedef struct
+{
+    NodeT *tail,*head;
+} Coada;
+typedef struct
+{
+    int n;
+    int **m;
+} Graf;
+void afisare_mat(int **a,int n)
+{
+    int i,j;
+    for(i=0; i<n; i++,printf("\n"))
+        for(j=0; j<n; j++)
+            printf("%d ",a[i][j]);
+}
+void citire_graf(Graf *g,FILE *pf)
+{
+    int i;
+    fscanf(pf,"%d",&(g->n));
+    g->m=(int **)calloc(g->n,sizeof(int*));
+    int **mat=g->m;
+    for(i=0; i<g->n; i++)
+        mat[i]=(int*)calloc(g->n,sizeof(int));
+    int v,u;
+    while(fscanf(pf," (%d,%d)",&v,&u)==2)
+    {
+        if(u<g->n && v<g->n)
+            mat[v][u]=mat[u][v]=1;
+    }
+}
+void afisare_coada(Coada q)
+{
+    NodeT *p=q.head;
+    while(p!=NULL)
+    {
+        printf("%d ",p->key);
+        p=p->next;
+    }
+}
+void enqueue(Coada *q,int key)
+{
+    NodeT *p=(NodeT *)calloc(1,sizeof(NodeT));
+    p->key=key;
+    p->next=NULL;
+    if(q->head==NULL)
+    {
+        q->head=q->tail=p;
+    }
+    else
+    {
+        q->tail->next=p;
+        q->tail=p;
+    }
+}
+NodeT *dequeue(Coada *q)
+{
+    if(q->head==NULL) return NULL;
+    if(q->tail==q->head)
+    {
+        NodeT *p=q->tail;
+        q->tail=q->head=NULL;
+        return p;
+    }
+    NodeT *p=q->head;
+    q->head=q->head->next;
+    return p;
+}
+void afisare_drum(int *parinte, int nod)
+{
+    if (nod == -1) return;
+    afisare_drum(parinte, parinte[nod]);
+    printf("%d ", nod);
+}
+void BFS(Graf g, int start, int **distante, int **parinte)
+{
+    Coada q = {NULL, NULL};
+    int n = g.n, i;
+    int *vizitat = (int*)calloc(n, sizeof(int));
+
+    *distante = (int*)malloc(n * sizeof(int));
+    *parinte = (int*)malloc(n * sizeof(int)); // Alocăm vectorul de părinți
+
+    for(i = 0; i < n; i++)
+    {
+        (*distante)[i] = -1;
+        (*parinte)[i] = -1; // -1 înseamnă că nu are părinte încă
+    }
+
+    (*distante)[start] = 0;
+    vizitat[start] = 1;
+    enqueue(&q, start);
+
+    while(q.head != NULL)
+    {
+        NodeT *p = dequeue(&q);
+        int cheie = p->key;
+        free(p);
+        printf("%d ",cheie);
+        for(i = 0; i < n; i++)
+        {
+            if(g.m[cheie][i] == 1 && vizitat[i] == 0)
+            {
+                (*distante)[i] = (*distante)[cheie] + 1;
+                (*parinte)[i] = cheie; // Setăm cheie ca fiind părintele lui i
+                vizitat[i] = 1;
+                enqueue(&q, i);
+            }
+        }
+    }
+    free(vizitat);
+}
+void elibereaza_memorie(int **a,int n)
+{
+    int i=0;
+    for(i=0; i<n; i++)
+        free(a[i]);
+    free(a);
+}
+int main()
+{
+    FILE *pf = fopen("date.txt", "r");
+    if(pf == NULL) return -1;
+
+    Graf g;
+    citire_graf(&g, pf);
+    fclose(pf);
+
+    int *distante = NULL;
+    int *parinte = NULL;
+    int start_node = 4; // Nodul de plecare
+
+    printf("Parcurgere BFS: ");
+    BFS(g, start_node, &distante, &parinte);
+    printf("\n\n");
+    int i;
+    for(i=0;i<g.n;i++)
+    {
+        printf("%d ",parinte[i]);
+    }
+    printf("\n");    // Afișăm distanțele și drumurile către toate celelalte noduri
+    for(int i = 0; i
+    < g.n; i++)
+    {
+        printf("Nodul %d: ", i);
+        if(distante[i] != -1)
+        {
+            printf("(Distanta: %d) | Drum: ", distante[i]);
+            afisare_drum(parinte, i);
+        }
+        else
+        {
+            printf("Inaccesibil din %d", start_node);
+        }
+        printf("\n");
+    }
+
+    // ELIBERARE MEMORIE
+    elibereaza_memorie(g.m, g.n);
+    free(distante);
+    free(parinte);
+
+    return 0;
+}

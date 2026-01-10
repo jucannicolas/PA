@@ -1,0 +1,145 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct node
+{
+    int key;
+    struct node* next;
+} NodeT;
+typedef struct
+{
+    NodeT *tail,*head;
+} Coada;
+typedef struct
+{
+    int n;
+    NodeT **L;
+} Graf;
+void enqueue(Coada *q,int key)
+{
+    NodeT *p=(NodeT *)calloc(1,sizeof(NodeT));
+    p->key=key;
+    p->next=NULL;
+    if(q->head==NULL)
+    {
+        q->head=q->tail=p;
+    }
+    else
+    {
+        q->tail->next=p;
+        q->tail=p;
+    }
+}
+NodeT *dequeue(Coada *q)
+{
+    if(q->head==NULL) return NULL;
+    if(q->tail==q->head)
+    {
+        NodeT *p=q->tail;
+        q->tail=q->head=NULL;
+        return p;
+    }
+    NodeT *p=q->head;
+    q->head=q->head->next;
+    return p;
+}
+void afisare_lista(NodeT *f)
+{
+    while(f!=NULL)
+    {
+        printf("%d ",f->key);
+        f=f->next;
+    }
+}
+void inserare_in_Lista(NodeT **f,int key)
+{
+    NodeT *p=(NodeT *)calloc(1,sizeof(NodeT));
+    p->key=key;
+    p->next=NULL;
+    NodeT *q=*f,*q_ant=NULL;
+    if(q==NULL)
+    {
+        *f=p;
+        return;
+    }
+    while(q!=NULL)
+    {
+        q_ant=q;
+        q=q->next;
+    }
+    q_ant->next=p;
+}
+void citire_graf(Graf *g,FILE *pf)
+{
+    fscanf(pf,"%d",&(g->n));
+    int n=g->n,i;
+    g->L=(NodeT **)calloc(n,sizeof(NodeT *));
+    for(i=0;i<n;i++)
+        g->L[i]=NULL;
+    int u,v;
+    while(fscanf(pf," (%d,%d)",&u,&v)==2)
+    {
+        printf("%d %d\n",u,v);
+        if(u<n && v<n)
+        {
+            NodeT **f=&(g->L[u]);
+            inserare_in_Lista(f,v);
+            inserare_in_Lista(&(g->L[v]),u);
+        }
+    }
+}
+void BFS(Graf g,int start)
+{
+    Coada q={NULL,NULL};
+    int n=g.n;
+    int *vizitat=(int *)calloc(n,sizeof(int));
+    vizitat[start]=1;
+    enqueue(&q,start);
+    while(q.head!=NULL)
+    {
+        NodeT *p=dequeue(&q);
+        int cheie=p->key;
+        printf("%d ",cheie);
+        free(p);
+        p=g.L[cheie];
+        while(p!=NULL)
+        {
+            int cheie2=p->key;
+            if(vizitat[cheie2]==0)
+            {
+                vizitat[cheie2]=1;
+                enqueue(&q,cheie2);
+            }
+            p=p->next;
+        }
+    }
+}
+void eliberare_memorie(NodeT **L,int n)
+{
+    int i;
+    for(i=0;i<n;i++)
+    {
+        NodeT *p=L[i];
+        while(p!=NULL)
+        {
+            NodeT *q=p->next;
+            free(p);
+            p=q;
+        }
+
+    }
+    free(L);
+}
+int main()
+{
+    FILE *pf=fopen("date.txt","r");
+    if(pf==NULL)
+    {
+        printf("Nu s-a putut deschide fisierul");
+        return -1;
+    }
+    Graf g;
+    citire_graf(&g,pf);
+    BFS(g,1);
+    eliberare_memorie(g.L,g.n);
+    return 0;
+}
